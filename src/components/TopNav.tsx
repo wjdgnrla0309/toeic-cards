@@ -1,0 +1,52 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { BookOpen, Plus, Search } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { buttonClass } from "./Button";
+
+export function TopNav() {
+  const router = useRouter();
+  const path = usePathname();
+  const [q, setQ] = useState("");
+
+  function onSearch(e: FormEvent) {
+    e.preventDefault();
+    router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+  }
+
+  return (
+    <header className="sticky top-0 z-40 h-14 border-b border-border bg-bg/95 backdrop-blur">
+      <nav aria-label="주 메뉴" className="mx-auto flex h-full max-w-content items-center gap-3 px-4">
+        <Link
+          href="/"
+          aria-current={path === "/" ? "page" : undefined}
+          className="flex shrink-0 items-center gap-2 rounded-md font-bold text-text"
+        >
+          <BookOpen aria-hidden className="size-5 text-accent" />
+          <span className="hidden sm:inline">토익 단어장</span>
+        </Link>
+        <form role="search" onSubmit={onSearch} className="relative min-w-0 flex-1">
+          <label htmlFor="nav-search" className="sr-only">
+            단어나 세트 검색
+          </label>
+          <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" />
+          <input
+            id="nav-search"
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="단어나 세트 검색"
+            className="h-9 w-full rounded-md border border-border-input bg-bg pl-9 pr-3 text-sm placeholder:text-muted"
+          />
+        </form>
+        <Link href="/sets/new" className={buttonClass("primary", "sm", "shrink-0")}>
+          <Plus aria-hidden className="size-4" />
+          <span className="hidden sm:inline">새 세트</span>
+          <span className="sr-only sm:hidden">새 세트</span>
+        </Link>
+      </nav>
+    </header>
+  );
+}
