@@ -106,11 +106,11 @@ function Flashcards({ set, data }: { set: StudySet; data: Snapshot }) {
               id="flip"
               type="button"
               aria-pressed={flipped}
-              aria-label={`카드 뒤집기. ${flipped ? "뒷면" : "앞면"}`}
               onClick={() => setFlipped((f) => !f)}
               className="flip-inner relative block h-72 w-full rounded-lg sm:h-80"
               data-flipped={flipped}
             >
+              <span className="sr-only">카드 뒤집기 ({flipped ? "뒷면" : "앞면"}): </span>
               {(["front", "back"] as const).map((side) => {
                 const showTerm = (side === "front") === (front === "term");
                 const text = showTerm ? card.term : card.definition;

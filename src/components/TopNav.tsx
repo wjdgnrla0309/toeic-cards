@@ -21,6 +21,7 @@ export function TopNav() {
       <nav aria-label="주 메뉴" className="mx-auto flex h-full max-w-content items-center gap-3 px-4">
         <Link
           href="/"
+          aria-label="토익 단어장 홈"
           aria-current={path === "/" ? "page" : undefined}
           className="flex shrink-0 items-center gap-2 rounded-md font-bold text-text"
         >

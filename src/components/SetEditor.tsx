@@ -32,7 +32,14 @@ export function SetEditor({
   );
   const [showImport, setShowImport] = useState(false);
   const [tried, setTried] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const submitted = useRef(false);
   const focusKey = useRef<string | null>(null);
+
+  // After a failed save, move focus to the first invalid field (once it has rendered as invalid).
+  useEffect(() => {
+    if (attempt) document.querySelector<HTMLElement>("form [aria-invalid='true']")?.focus();
+  }, [attempt]);
 
   useEffect(() => {
     if (!focusKey.current) return;
@@ -67,11 +74,13 @@ export function SetEditor({
     setRows((rs) => [...rs, r]);
   }
   function submit() {
+    if (submitted.current) return; // double click
     setTried(true);
     if (!valid) {
-      document.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
+      setAttempt((n) => n + 1);
       return;
     }
+    submitted.current = true;
     onSubmit({
       title,
       description,

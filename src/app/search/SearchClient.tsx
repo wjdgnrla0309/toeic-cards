@@ -31,7 +31,7 @@ export function SearchClient() {
           <h2 id="r-sets" className="mb-3 font-semibold">세트 {sets.length}</h2>
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {sets.map((s) => (
-              <li key={s.id}>
+              <li key={s.id} className="min-w-0">
                 <SetCard set={s} progress={data.progress} />
               </li>
             ))}
