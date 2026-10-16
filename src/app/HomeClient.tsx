@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, Plus, Upload } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { toast } from "@/components/Toast";
@@ -33,6 +33,21 @@ export function HomeClient() {
       return false;
     }
   });
+  // Add the 850+ word book once per browser/account; after that only the button offers it.
+  const libraryKey = `toeic-cards:library-added:${session?.user.id ?? "local"}`;
+  useEffect(() => {
+    if (!data) return;
+    try {
+      if (localStorage.getItem(libraryKey)) return;
+      localStorage.setItem(libraryKey, "1");
+    } catch {
+      return;
+    }
+    if (data.sets.some((s) => s.title.startsWith(`${LIBRARY_TITLE} |`))) return;
+    [...librarySets].reverse().forEach((d) => repo.createSet(d));
+    toast(`${LIBRARY_TITLE} ${librarySets.length}개 세트를 추가했어요.`);
+  }, [data, libraryKey]);
+
   if (!data) return <LoadingPage />;
 
   const localSets = session && !moved ? localSetsForImport() : [];

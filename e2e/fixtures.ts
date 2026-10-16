@@ -35,6 +35,7 @@ export async function seed(page: Page, sets: SeedSet[]) {
     ([key, value]) => {
       if (!sessionStorage.getItem("__seeded")) {
         localStorage.setItem(key, value);
+        localStorage.setItem("toeic-cards:library-added:local", "1"); // keep seeded tests to their own sets
         sessionStorage.setItem("__seeded", "1");
       }
     },

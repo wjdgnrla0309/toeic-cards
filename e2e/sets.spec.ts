@@ -73,6 +73,7 @@ test.describe("F01 새 세트 만들기", () => {
   test("F01-E5 만들기 두 번 클릭해도 세트 하나", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: /토익 빈출 동사 1/ })).toBeVisible(); // data loaded
+    await expect(page.getByRole("link", { name: /토익 850\+ 단어 \|/ })).toHaveCount(15); // word book auto-added
     const before = await page.getByRole("listitem").filter({ has: page.getByRole("link") }).count();
     await page.goto("/sets/new/");
     await page.getByLabel("세트 이름").fill("더블클릭");
@@ -196,21 +197,29 @@ test.describe("공통", () => {
   test("샘플 세트가 첫 방문에 보임", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: /토익 빈출 동사 1/ })).toBeVisible();
-    await expect(page.getByText("3개 세트, 60단어 중 0개 외움")).toBeVisible();
+    await expect(page.getByText("18개 세트, 524단어 중 0개 외움")).toBeVisible();
   });
 
-  test("토익 850+ 단어장을 한 번에 추가", async ({ page }) => {
+  test("토익 850+ 단어장은 첫 방문에 자동으로 한 번 추가", async ({ page }) => {
     await page.goto("/");
-    const book = page.getByRole("region", { name: "토익 850+ 단어" });
-    await expect(book).toBeVisible();
-    await a11y(page, "S01 home with library");
-    await book.getByRole("button", { name: "내 단어장에 추가" }).click();
     await expect(page.getByText("토익 850+ 단어 15개 세트를 추가했어요.")).toBeVisible();
-    await expect(book).toHaveCount(0);
     await expect(page.getByRole("link", { name: /토익 850\+ 단어 \|/ })).toHaveCount(15);
+    await expect(page.getByRole("region", { name: "토익 850+ 단어" })).toHaveCount(0);
+    await a11y(page, "S01 home with library");
     await page.getByRole("link", { name: /토익 850\+ 단어 \| 채용·인사/ }).click();
     await expect(page.getByRole("heading", { name: "단어 32개" })).toBeVisible();
+    // Deleting the sets does not bring them back on reload; the button offers them again.
+    await page.goto("/");
+    await page.evaluate(() => {
+      const k = "toeic-cards:v1";
+      const d = JSON.parse(localStorage.getItem(k)!);
+      d.sets = d.sets.filter((s: { title: string }) => !s.title.startsWith("토익 850+"));
+      localStorage.setItem(k, JSON.stringify(d));
+    });
     await page.reload();
-    await expect(page.getByRole("heading", { name: "단어 32개" })).toBeVisible();
+    await expect(page.getByRole("link", { name: /토익 850\+ 단어 \|/ })).toHaveCount(0);
+    const book = page.getByRole("region", { name: "토익 850+ 단어" });
+    await book.getByRole("button", { name: "내 단어장에 추가" }).click();
+    await expect(page.getByRole("link", { name: /토익 850\+ 단어 \|/ })).toHaveCount(15);
   });
 });
