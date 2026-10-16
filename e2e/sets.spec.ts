@@ -198,4 +198,19 @@ test.describe("공통", () => {
     await expect(page.getByRole("link", { name: /토익 빈출 동사 1/ })).toBeVisible();
     await expect(page.getByText("3개 세트, 60단어 중 0개 외움")).toBeVisible();
   });
+
+  test("토익 850+ 단어장을 한 번에 추가", async ({ page }) => {
+    await page.goto("/");
+    const book = page.getByRole("region", { name: "토익 850+ 단어" });
+    await expect(book).toBeVisible();
+    await a11y(page, "S01 home with library");
+    await book.getByRole("button", { name: "내 단어장에 추가" }).click();
+    await expect(page.getByText("토익 850+ 단어 15개 세트를 추가했어요.")).toBeVisible();
+    await expect(book).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /토익 850\+ 단어 \|/ })).toHaveCount(15);
+    await page.getByRole("link", { name: /토익 850\+ 단어 \| 채용·인사/ }).click();
+    await expect(page.getByRole("heading", { name: "단어 32개" })).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "단어 32개" })).toBeVisible();
+  });
 });

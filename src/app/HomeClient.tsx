@@ -7,6 +7,7 @@ import { toast } from "@/components/Toast";
 import { LoadingPage, SetCard, Sheet, SpeakButton } from "@/components/ui";
 import { addSampleSets, importLocalSets, localSetsForImport, repo, useAccount, useData } from "@/lib/data";
 import type { Snapshot } from "@/lib/data/repo";
+import { LIBRARY_TITLE, librarySets, libraryWordCount } from "@/lib/data/library";
 import { seedSets } from "@/lib/data/seed";
 
 const dayNumber = () => Math.floor(Date.now() / 86_400_000);
@@ -49,6 +50,13 @@ export function HomeClient() {
   const mastered = Object.values(data.progress).filter((p) => p.mastery === "mastered").length;
   const today = wordOfTheDay(data);
   const recent = sorted[0];
+  const hasLibrary = data.sets.some((s) => s.title.startsWith(`${LIBRARY_TITLE} |`));
+
+  function addLibrary() {
+    // Newest first in the list, so add in reverse to keep the book's order.
+    [...librarySets].reverse().forEach((d) => repo.createSet(d));
+    toast(`${LIBRARY_TITLE} ${librarySets.length}개 세트를 추가했어요.`);
+  }
 
   function exportBackup() {
     const blob = new Blob([repo.exportAll()], { type: "application/json" });
@@ -115,6 +123,25 @@ export function HomeClient() {
             )}
             {recent && <p className="min-w-0 truncate text-sm text-muted">최근에 본 세트: {recent.title}</p>}
           </div>
+        </section>
+      )}
+
+      {!hasLibrary && (
+        <section aria-labelledby="library" className="mb-10 rounded-lg bg-accent px-6 py-6 text-on-accent shadow-card sm:px-8">
+          <h2 id="library" className="text-xl font-bold">
+            {LIBRARY_TITLE}
+          </h2>
+          <p className="mt-1 max-w-prose text-[15px] opacity-90">
+            채용, 회의, 계약, 재무, 물류, 출장 같은 업무 상황 어휘와 Part 5 형용사·부사·동사, 숙어, 구동사, Part 7 동의어까지{" "}
+            {librarySets.length}개 세트, {libraryWordCount}단어를 한 번에 추가해요.
+          </p>
+          <button
+            type="button"
+            onClick={addLibrary}
+            className="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-bg px-5 text-sm font-semibold text-accent hover:bg-accent-soft"
+          >
+            <Plus aria-hidden className="size-4" /> 내 단어장에 추가
+          </button>
         </section>
       )}
 
