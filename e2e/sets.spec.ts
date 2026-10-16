@@ -72,6 +72,7 @@ test.describe("F01 새 세트 만들기", () => {
 
   test("F01-E5 만들기 두 번 클릭해도 세트 하나", async ({ page }) => {
     await page.goto("/");
+    await expect(page.getByRole("link", { name: /토익 빈출 동사 1/ })).toBeVisible(); // data loaded
     const before = await page.getByRole("listitem").filter({ has: page.getByRole("link") }).count();
     await page.goto("/sets/new/");
     await page.getByLabel("세트 이름").fill("더블클릭");
