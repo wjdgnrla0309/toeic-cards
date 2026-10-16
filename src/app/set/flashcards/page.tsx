@@ -63,7 +63,7 @@ function Flashcards({ set, data }: { set: StudySet; data: Snapshot }) {
 
   return (
     <div>
-      <BackLink href={`/sets/${set.id}`}>{set.title}</BackLink>
+      <BackLink href={`/set?id=${set.id}`}>{set.title}</BackLink>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-bold">카드</h1>
         <div className="flex flex-wrap gap-2 text-sm">

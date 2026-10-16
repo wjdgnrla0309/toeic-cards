@@ -81,7 +81,7 @@ function Match({ set, data }: { set: StudySet; data: Snapshot }) {
 
   return (
     <div>
-      <BackLink href={`/sets/${set.id}`}>{set.title}</BackLink>
+      <BackLink href={`/set?id=${set.id}`}>{set.title}</BackLink>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-bold">매칭</h1>
         {phase === "play" && (

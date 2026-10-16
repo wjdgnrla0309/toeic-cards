@@ -1,15 +1,15 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { useSet } from "@/lib/data";
 import type { Snapshot } from "@/lib/data/repo";
 import type { StudySet } from "@/lib/types";
 import { LoadingPage, NotFound } from "./ui";
 
-/** Resolves the [id] route param to a set, with loading and not-found states. */
+/** Resolves the ?id= query param to a set, with loading and not-found states. */
 export function WithSet({ children }: { children: (set: StudySet, data: Snapshot) => ReactNode }) {
-  const { id } = useParams<{ id: string }>();
+  const id = useSearchParams().get("id") ?? "";
   const r = useSet(id);
   if (r.loading) return <LoadingPage />;
   if (!r.set) return <NotFound />;

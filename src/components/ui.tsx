@@ -25,7 +25,7 @@ export function SetCard({ set, progress }: { set: StudySet; progress: Record<str
   const mastered = set.cards.filter((c) => progress[c.id]?.mastery === "mastered").length;
   return (
     <Link
-      href={`/sets/${set.id}`}
+      href={`/set?id=${set.id}`}
       className="group flex flex-col gap-3 rounded-lg border border-border bg-bg p-4 transition-shadow hover:shadow-card"
     >
       <div className="min-w-0">

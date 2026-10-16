@@ -80,7 +80,7 @@ function Learn({ set, data }: { set: StudySet; data: Snapshot }) {
   const p = progress(state);
   const header = (
     <>
-      <BackLink href={`/sets/${set.id}`}>{set.title}</BackLink>
+      <BackLink href={`/set?id=${set.id}`}>{set.title}</BackLink>
       <div className="mb-2 flex items-center justify-between">
         <h1 className="text-xl font-bold">학습 · {state.round}라운드</h1>
         <Button variant="ghost" size="sm" onClick={() => { repo.saveLearn(set.id, null); setState(null); }}>
@@ -103,7 +103,7 @@ function Learn({ set, data }: { set: StudySet; data: Snapshot }) {
           <p className="mt-1 text-sm text-text">단어 {state.order.length}개 완료</p>
           <div className="mt-5 flex justify-center gap-2">
             <Button onClick={() => setState(null)}>다시 학습</Button>
-            <Button variant="secondary" onClick={() => router.push(`/sets/${set.id}/test`)}>시험 보기</Button>
+            <Button variant="secondary" onClick={() => router.push(`/set/test?id=${set.id}`)}>시험 보기</Button>
           </div>
         </div>
       </div>
@@ -264,7 +264,7 @@ function LearnStart({
   const tooFew = set.cards.length < 1 || (starredOnly && starred < 1);
   return (
     <div>
-      <BackLink href={`/sets/${set.id}`}>{set.title}</BackLink>
+      <BackLink href={`/set?id=${set.id}`}>{set.title}</BackLink>
       <h1 className="mb-4 text-xl font-bold">학습</h1>
       <div className="space-y-5 rounded-lg border border-border bg-bg p-5">
         <p className="text-sm text-muted">

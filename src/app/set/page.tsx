@@ -46,7 +46,7 @@ export default function SetPage() {
               {modes.map((m) => (
                 <Link
                   key={m.href}
-                  href={`/sets/${set.id}/${m.href}`}
+                  href={`/set/${m.href}?id=${set.id}`}
                   className="flex items-center gap-3 rounded-lg border border-border bg-bg p-4 transition-shadow hover:shadow-card"
                 >
                   <m.icon aria-hidden className="size-6 shrink-0 text-accent" />
@@ -70,7 +70,7 @@ export default function SetPage() {
             </section>
 
             <div className="mt-6 flex flex-wrap gap-2">
-              <ButtonLink href={`/sets/${set.id}/edit`} variant="secondary" size="sm">
+              <ButtonLink href={`/set/edit?id=${set.id}`} variant="secondary" size="sm">
                 <Pencil aria-hidden className="size-4" /> 편집
               </ButtonLink>
               <Button

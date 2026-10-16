@@ -80,7 +80,7 @@ function TestScreen({ set }: { set: StudySet }) {
 
   return (
     <div>
-      <BackLink href={`/sets/${set.id}`}>{set.title}</BackLink>
+      <BackLink href={`/set?id=${set.id}`}>{set.title}</BackLink>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-bold">시험 · {qs.length}문제</h1>
         <Button variant="secondary" size="sm" onClick={() => setQs(null)}>
@@ -310,7 +310,7 @@ function TestSetup({ set, onStart }: { set: StudySet; onStart: (c: TestConfig) =
 
   return (
     <div>
-      <BackLink href={`/sets/${set.id}`}>{set.title}</BackLink>
+      <BackLink href={`/set?id=${set.id}`}>{set.title}</BackLink>
       <h1 className="mb-4 text-xl font-bold">시험 설정</h1>
       <form
         className="space-y-5 rounded-lg border border-border bg-bg p-5"

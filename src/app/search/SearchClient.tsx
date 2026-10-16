@@ -46,7 +46,7 @@ export function SearchClient() {
               <li key={w.id} className="grid gap-1 p-3 sm:grid-cols-3 sm:gap-4">
                 <span lang="en" className="font-semibold">{w.term}</span>
                 <span className="text-muted">{w.definition}</span>
-                <Link href={`/sets/${w.set.id}`} className="truncate text-sm text-accent underline">
+                <Link href={`/set?id=${w.set.id}`} className="truncate text-sm text-accent underline">
                   {w.set.title}
                 </Link>
               </li>

@@ -19,7 +19,7 @@ export default function NewSetPage() {
         onSubmit={(draft) => {
           const id = repo.createSet(draft);
           toast("세트를 만들었어요.");
-          router.push(`/sets/${id}`);
+          router.push(`/set?id=${id}`);
         }}
       />
     </div>

@@ -1,36 +1,18 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 토익 단어장
 
-## Getting Started
+토익 단어를 카드, 학습, 시험, 매칭 게임으로 외우는 개인용 웹앱입니다.
 
-First, run the development server:
+- 데이터는 **사용하는 브라우저에만** 저장됩니다. 기기를 바꿀 때는 홈 화면의 "백업 내려받기 → 백업 불러오기"를 쓰세요.
+- 단어 목록은 세트 편집의 "목록 붙여 넣기"로 엑셀·메모장에서 한 번에 가져올 수 있습니다.
+- 샘플 세트는 이 앱을 위해 고른 단어이며 공식 토익 단어 목록이 아닙니다.
+
+## 개발
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm test         # 학습 로직 단위 테스트
+npm run build    # 정적 사이트를 out/에 생성
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`main`에 push하면 GitHub Actions(`.github/workflows/deploy.yml`)가 테스트 후 GitHub Pages에 배포합니다.
