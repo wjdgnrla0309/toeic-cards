@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: "e2e",
   fullyParallel: true,
   retries: 0,
-  reporter: [["list"]],
+  reporter: process.env.CI ? [["github"], ["list"]] : [["list"]],
   use: { baseURL: "http://localhost:3200", trace: "retain-on-failure" },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } },
