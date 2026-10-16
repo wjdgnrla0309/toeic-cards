@@ -196,6 +196,6 @@ test.describe("공통", () => {
   test("샘플 세트가 첫 방문에 보임", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: /토익 빈출 동사 1/ })).toBeVisible();
-    await expect(page.getByText("세트 3개 · 단어 60개")).toBeVisible();
+    await expect(page.getByText("3개 세트, 60단어 중 0개 외움")).toBeVisible();
   });
 });

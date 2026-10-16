@@ -22,7 +22,7 @@ export default function AccountPage() {
     return (
       <div>
         <PageTitle>계정</PageTitle>
-        <p className="rounded-lg bg-surface p-6 text-muted">서버 저장이 아직 설정되지 않았어요. 지금은 이 브라우저에만 저장돼요.</p>
+        <p className="rounded-lg bg-bg p-6 shadow-card text-muted">서버 저장이 아직 설정되지 않았어요. 지금은 이 브라우저에만 저장돼요.</p>
       </div>
     );
   }
@@ -63,7 +63,7 @@ export default function AccountPage() {
     return (
       <div>
         <PageTitle sub="단어와 학습 기록이 서버에 저장되고, 같은 계정으로 로그인한 모든 기기에서 보여요.">계정</PageTitle>
-        <div className="space-y-4 rounded-lg border border-border bg-bg p-5">
+        <div className="space-y-4 rounded-lg bg-bg shadow-card p-5">
           <p className="text-sm">
             로그인: <strong>{session.user.email}</strong>
           </p>
@@ -93,7 +93,7 @@ export default function AccountPage() {
           <p className="mt-1 text-sm text-text">메일의 링크를 누르면 가입이 끝나요. 메일이 안 보이면 스팸함을 확인하세요.</p>
         </div>
       ) : (
-        <form onSubmit={submit} noValidate className="space-y-4 rounded-lg border border-border bg-bg p-5">
+        <form onSubmit={submit} noValidate className="space-y-4 rounded-lg bg-bg shadow-card p-5">
           <div>
             <label htmlFor="email" className="mb-1 block text-sm font-semibold">이메일</label>
             <input

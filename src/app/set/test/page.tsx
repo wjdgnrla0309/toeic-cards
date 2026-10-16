@@ -89,7 +89,7 @@ function TestScreen({ set }: { set: StudySet }) {
       </div>
 
       {result && (
-        <section role="status" aria-label="결과" className="mb-6 rounded-lg bg-surface p-6 text-center">
+        <section role="status" aria-label="결과" className="mb-6 rounded-lg bg-bg p-6 shadow-card text-center">
           <p className="text-sm font-semibold text-muted">점수</p>
           <p className="mt-1 text-[40px] font-bold leading-[48px]">
             {Math.round((result.score / Math.max(1, result.total)) * 100)}점
@@ -144,7 +144,7 @@ function TestScreen({ set }: { set: StudySet }) {
       </ol>
 
       {!result && (
-        <div className="sticky bottom-0 -mx-4 mt-6 border-t border-border bg-bg/95 px-4 py-3 backdrop-blur">
+        <div className="sticky bottom-16 -mx-4 mt-6 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur sm:bottom-0">
           {warnUnanswered > 0 && (
             <p role="alert" className="mb-2 text-sm text-warning">
               답하지 않은 문제가 {warnUnanswered}개 있어요. 그래도 제출할까요?
@@ -183,7 +183,7 @@ function QuestionView({
   if (q.kind === "written") {
     return (
       <div>
-        <p lang={pLang} className="text-lg font-semibold">{q.prompt}</p>
+        <p lang={pLang} className="text-[22px] font-semibold">{q.prompt}</p>
         <label className="mt-3 block">
           <span className="sr-only">답</span>
           <input
@@ -205,7 +205,7 @@ function QuestionView({
   if (q.kind === "mc") {
     return (
       <fieldset>
-        <legend lang={pLang} className="text-lg font-semibold">{q.prompt}</legend>
+        <legend lang={pLang} className="text-[22px] font-semibold">{q.prompt}</legend>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {q.options.map((o) => {
             const chosen = value === o;
@@ -313,7 +313,7 @@ function TestSetup({ set, onStart }: { set: StudySet; onStart: (c: TestConfig) =
       <BackLink href={`/set?id=${set.id}`}>{set.title}</BackLink>
       <h1 className="mb-4 text-xl font-bold">시험 설정</h1>
       <form
-        className="space-y-5 rounded-lg border border-border bg-bg p-5"
+        className="space-y-5 rounded-lg bg-bg shadow-card p-5"
         onSubmit={(e) => {
           e.preventDefault();
           if (valid) onStart({ count, types, prompt });

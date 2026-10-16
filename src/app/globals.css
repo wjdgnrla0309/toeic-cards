@@ -3,26 +3,29 @@
 /* Generated from replica/design/tokens.json. Change values there first. */
 :root {
   --bg: #ffffff;
-  --surface: #f5f6fa;
-  --surface-2: #eceef5;
+  --surface: #f3f4f8;
+  --surface-2: #e7e9f0;
   --border: #e1e4ec;
-  --border-input: #7d8597;
-  --text: #151824;
-  --text-muted: #555d6e;
-  --accent: #3b4fd8;
-  --accent-soft: #eef0fd;
+  --border-input: #7a8197;
+  --text: #1b2340;
+  --text-muted: #565e78;
+  --accent: #2a3a8f;
+  --accent-soft: #eceefa;
+  --accent-strong: #22307a;
   --on-accent: #ffffff;
-  --danger: #b42828;
-  --danger-soft: #fdeeee;
-  --success: #1b7346;
-  --success-soft: #e8f6ee;
-  --warning: #8a5a00;
+  --marker: #ffe45c;
+  --danger: #b3302f;
+  --danger-soft: #fcecec;
+  --danger-strong: #9a2827;
+  --success: #1a7047;
+  --success-soft: #e6f4ec;
+  --warning: #835400;
 
-  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
-  --shadow-pop: 0 12px 32px rgba(16, 24, 40, 0.16);
+  --elev-card: 0 1px 2px rgba(27, 35, 64, 0.06), 0 4px 16px rgba(27, 35, 64, 0.06);
+  --elev-pop: 0 16px 40px rgba(27, 35, 64, 0.18);
   --motion-fast: 120ms;
   --motion-base: 200ms;
-  --motion-flip: 400ms;
+  --motion-flip: 450ms;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -36,34 +39,63 @@
   --color-muted: var(--text-muted);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-strong: var(--accent-strong);
   --color-on-accent: var(--on-accent);
+  --color-marker: var(--marker);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-danger-strong: var(--danger-strong);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
 
-  --font-sans: "Pretendard Variable", Pretendard, Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
 
-  --shadow-card: var(--shadow-card);
-  --shadow-pop: var(--shadow-pop);
+  --shadow-card: var(--elev-card);
+  --shadow-pop: var(--elev-pop);
 
-  --container-content: 960px;
+  --container-content: 880px;
 }
 
 html {
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text);
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg);
+  background: var(--surface);
+  letter-spacing: -0.01em;
+}
+
+/* English words are set like a dictionary entry. */
+[lang="en"] {
+  font-family: var(--font-serif);
+  letter-spacing: 0;
+}
+
+/* The highlighter stroke: the one decorative mark in the app, used on English words. */
+.marker {
+  background-image: linear-gradient(
+    100deg,
+    transparent 0.2em,
+    var(--marker) 0.35em,
+    var(--marker) calc(100% - 0.3em),
+    transparent calc(100% - 0.1em)
+  );
+  background-size: 100% 0.5em;
+  background-position: 0 88%;
+  background-repeat: no-repeat;
+  padding-inline: 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 :focus-visible {

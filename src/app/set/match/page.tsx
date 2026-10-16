@@ -92,9 +92,9 @@ function Match({ set, data }: { set: StudySet; data: Snapshot }) {
       </div>
 
       {!canPlay(set.cards) ? (
-        <p className="rounded-lg bg-surface p-8 text-center text-muted">매칭 게임을 하려면 단어가 2개 이상 필요해요.</p>
+        <p className="rounded-lg bg-bg p-8 shadow-card text-center text-muted">매칭 게임을 하려면 단어가 2개 이상 필요해요.</p>
       ) : phase === "ready" ? (
-        <div className="rounded-lg bg-surface p-10 text-center">
+        <div className="rounded-lg bg-bg p-10 shadow-card text-center">
           <p className="text-lg font-semibold">단어와 뜻의 짝을 최대한 빨리 맞혀 보세요.</p>
           <p className="mt-1 text-sm text-muted">틀리면 {PENALTY_MS / 1000}초가 더해져요.{best !== undefined && ` 내 최고 기록: ${fmt(best)}`}</p>
           <Button size="lg" className="mt-5" onClick={start} autoFocus>

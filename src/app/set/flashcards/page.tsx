@@ -85,14 +85,14 @@ function Flashcards({ set, data }: { set: StudySet; data: Snapshot }) {
       </p>
 
       {deck.length === 0 ? (
-        <div className="mt-6 rounded-lg bg-surface p-10 text-center">
+        <div className="mt-6 rounded-lg bg-bg p-10 text-center shadow-card">
           <p className="font-semibold">별표한 단어가 없어요.</p>
           <Button variant="secondary" size="sm" className="mt-3" onClick={() => setStarredOnly(false)}>
             전체 보기
           </Button>
         </div>
       ) : done ? (
-        <div className="mt-6 rounded-lg bg-surface p-10 text-center">
+        <div className="mt-6 rounded-lg bg-bg p-10 text-center shadow-card">
           <p className="text-lg font-semibold">{deck.length}장을 모두 봤어요.</p>
           <div className="mt-4 flex justify-center gap-2">
             <Button onClick={() => restart(false)}>처음부터</Button>
@@ -107,7 +107,7 @@ function Flashcards({ set, data }: { set: StudySet; data: Snapshot }) {
               type="button"
               aria-pressed={flipped}
               onClick={() => setFlipped((f) => !f)}
-              className="flip-inner relative block h-72 w-full rounded-lg sm:h-80"
+              className="flip-inner relative block h-[340px] w-full rounded-lg sm:h-[380px]"
               data-flipped={flipped}
             >
               <span className="sr-only">카드 뒤집기 ({flipped ? "뒷면" : "앞면"}): </span>
@@ -118,10 +118,16 @@ function Flashcards({ set, data }: { set: StudySet; data: Snapshot }) {
                   <span
                     key={side}
                     aria-hidden={(side === "back") !== flipped}
-                    className={`flip-face absolute inset-0 flex items-center justify-center rounded-lg border border-border bg-bg p-6 shadow-card ${side === "back" ? "flip-back" : ""}`}
+                    className={`flip-face absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg bg-bg p-8 shadow-pop ${side === "back" ? "flip-back" : ""}`}
                   >
-                    <span lang={showTerm ? "en" : "ko"} className={`break-words text-center ${showTerm ? "text-3xl font-bold sm:text-[40px] sm:leading-[48px]" : "text-2xl font-semibold"}`}>
-                      {text}
+                    <span aria-hidden className="absolute left-6 top-5 text-xs font-medium text-muted">
+                      {showTerm ? "영어" : "뜻"}
+                    </span>
+                    <span
+                      lang={showTerm ? "en" : "ko"}
+                      className={`max-w-full break-words text-center ${showTerm ? "text-[44px] font-semibold leading-[1.1] sm:text-[60px]" : "text-[26px] font-semibold leading-snug sm:text-[30px]"}`}
+                    >
+                      {showTerm ? <span className="marker">{text}</span> : text}
                     </span>
                   </span>
                 );
@@ -132,8 +138,8 @@ function Flashcards({ set, data }: { set: StudySet; data: Snapshot }) {
             {flipped ? (front === "term" ? card.definition : card.term) : ""}
           </p>
           <div className="mt-4 flex items-center justify-between">
-            <Button variant="secondary" onClick={() => go(-1)} disabled={i === 0} aria-label="이전 카드">
-              <ChevronLeft aria-hidden className="size-5" />
+            <Button variant="secondary" size="lg" className="w-13 px-0" onClick={() => go(-1)} disabled={i === 0} aria-label="이전 카드">
+              <ChevronLeft aria-hidden size={24} className="shrink-0" />
             </Button>
             <div className="flex items-center gap-1">
               <SpeakButton text={card.term} />
@@ -142,16 +148,16 @@ function Flashcards({ set, data }: { set: StudySet; data: Snapshot }) {
                 aria-pressed={!!data.progress[card.id]?.starred}
                 aria-label="별표"
                 onClick={() => repo.toggleStar(card.id)}
-                className="inline-flex size-9 items-center justify-center rounded-md text-muted hover:bg-surface aria-pressed:text-warning"
+                className="inline-flex size-10 items-center justify-center rounded-full text-muted hover:bg-bg aria-pressed:text-warning"
               >
                 <Star aria-hidden className="size-5" fill={data.progress[card.id]?.starred ? "currentColor" : "none"} />
               </button>
             </div>
-            <Button onClick={() => go(1)} aria-label="다음 카드">
-              <ChevronRight aria-hidden className="size-5" />
+            <Button size="lg" className="w-13 px-0" onClick={() => go(1)} aria-label="다음 카드">
+              <ChevronRight aria-hidden size={24} className="shrink-0" />
             </Button>
           </div>
-          <p className="mt-3 text-center text-xs text-muted">스페이스: 뒤집기 · ←/→: 이동 · S: 별표</p>
+          <p className="mt-4 hidden text-center text-xs text-muted sm:block">스페이스로 뒤집고, 화살표로 넘기고, S로 별표</p>
         </>
       )}
     </div>

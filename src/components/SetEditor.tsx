@@ -1,15 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { ArrowDown, ArrowUp, Camera, FileText, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, FileText, Plus, Trash2, X } from "lucide-react";
 import { Button } from "./Button";
 import type { SetDraft, Visibility } from "@/lib/types";
 import { guessTermSep, parseImport, type RowSep, type TermSep } from "@/lib/study/importText";
-import { useAccount } from "@/lib/data";
-import { extractWords, wordsToImportText } from "@/lib/photo";
-import { cloudEnabled } from "@/lib/supabase";
-import { toast } from "./Toast";
 
 type Row = SetDraft["cards"][number] & { key: string };
 
@@ -36,10 +31,6 @@ export function SetEditor({
       : [newRow(), newRow(), newRow()],
   );
   const [showImport, setShowImport] = useState(false);
-  const [importText, setImportText] = useState("");
-  const [reading, setReading] = useState(false);
-  const photoRef = useRef<HTMLInputElement>(null);
-  const { session } = useAccount();
   const [tried, setTried] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const submitted = useRef(false);
@@ -107,7 +98,7 @@ export function SetEditor({
       noValidate
       className="space-y-6"
     >
-      <div className="space-y-3 rounded-lg border border-border bg-surface p-4">
+      <div className="space-y-4 rounded-lg bg-bg p-5 shadow-card">
         <div>
           <label htmlFor="title" className="mb-1 block text-sm font-semibold">
             세트 이름
@@ -162,51 +153,10 @@ export function SetEditor({
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold">단어 {filled.length}개</h2>
-        <div className="flex flex-wrap justify-end gap-2">
-          {cloudEnabled &&
-            (session ? (
-              <>
-                <Button variant="secondary" size="sm" loading={reading} onClick={() => photoRef.current?.click()}>
-                  {!reading && <Camera aria-hidden className="size-4" />} {reading ? "사진 읽는 중…" : "사진으로 추가"}
-                </Button>
-                <input
-                  ref={photoRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  aria-hidden
-                  tabIndex={-1}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    e.target.value = "";
-                    if (!file) return;
-                    setReading(true);
-                    try {
-                      const words = await extractWords(file);
-                      if (!words.length) {
-                        toast("사진에서 단어를 찾지 못했어요. 더 밝고 가까이 찍어 보세요.", "error");
-                        return;
-                      }
-                      setImportText(wordsToImportText(words));
-                      setShowImport(true);
-                    } catch (err) {
-                      toast(err instanceof Error ? err.message : "사진을 인식하지 못했어요.", "error");
-                    } finally {
-                      setReading(false);
-                    }
-                  }}
-                />
-              </>
-            ) : (
-              <Link href="/account/" className="inline-flex h-8 items-center gap-2 rounded-md px-3 text-sm font-semibold text-accent hover:bg-accent-soft">
-                <Camera aria-hidden className="size-4" /> 사진으로 추가 (로그인 필요)
-              </Link>
-            ))}
-          <Button variant="secondary" size="sm" onClick={() => { setImportText(""); setShowImport(true); }}>
-            <FileText aria-hidden className="size-4" /> 목록 붙여 넣기
-          </Button>
-        </div>
+        <h2 className="px-1 text-xl font-bold">단어 {filled.length}개</h2>
+        <Button variant="secondary" size="sm" onClick={() => setShowImport(true)}>
+          <FileText aria-hidden className="size-4" /> 목록 붙여 넣기
+        </Button>
       </div>
 
       {tried && (errors.cards || errors.half) && (
@@ -219,7 +169,7 @@ export function SetEditor({
         {rows.map((r, i) => {
           const bad = tried && !!r.term.trim() !== !!r.definition.trim();
           return (
-            <li key={r.key} className={`rounded-lg border bg-bg p-3 ${bad ? "border-danger" : "border-border"}`}>
+            <li key={r.key} className={`rounded-lg bg-bg p-4 shadow-card ${bad ? "ring-2 ring-danger" : ""}`}>
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted">{i + 1}</span>
                 <div className="flex gap-1">
@@ -246,7 +196,7 @@ export function SetEditor({
                     onChange={(e) => update(r.key, { term: e.target.value })}
                     aria-invalid={bad && !r.term.trim()}
                     lang="en"
-                    className="min-h-11 w-full resize-y rounded-md border border-border-input bg-bg px-3 py-2"
+                    className="min-h-11 w-full resize-y rounded-md border border-border-input bg-bg px-3 py-2 text-[17px]"
                   />
                 </div>
                 <div>
@@ -278,7 +228,7 @@ export function SetEditor({
         <Plus aria-hidden className="size-4" /> 단어 추가
       </Button>
 
-      <div className="sticky bottom-0 -mx-4 flex justify-end gap-2 border-t border-border bg-bg/95 px-4 py-3 backdrop-blur">
+      <div className="sticky bottom-16 -mx-4 flex justify-end gap-2 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur sm:bottom-0">
         <Button variant="ghost" onClick={onCancel}>
           취소
         </Button>
@@ -287,8 +237,6 @@ export function SetEditor({
 
       {showImport && (
         <ImportDialog
-          initialText={importText}
-          fromPhoto={!!importText}
           onClose={() => setShowImport(false)}
           onImport={(parsed) => {
             setRows((rs) => {
@@ -318,18 +266,14 @@ function IconBtn({ label, onClick, disabled, children }: { label: string; onClic
 }
 
 function ImportDialog({
-  initialText = "",
-  fromPhoto = false,
   onClose,
   onImport,
 }: {
-  initialText?: string;
-  fromPhoto?: boolean;
   onClose: () => void;
   onImport: (rows: { term: string; definition: string }[]) => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
-  const [text, setText] = useState(initialText);
+  const [text, setText] = useState("");
   const [termSep, setTermSep] = useState<TermSep>("tab");
   const [rowSep, setRowSep] = useState<RowSep>("newline");
   const [customTerm, setCustomTerm] = useState("");
@@ -350,7 +294,7 @@ function ImportDialog({
     >
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <h2 id="import-title" className="text-lg font-semibold">
-          {fromPhoto ? "사진에서 찾은 단어" : "목록 붙여 넣기"}
+          목록 붙여 넣기
         </h2>
         <button type="button" aria-label="닫기" onClick={() => ref.current?.close()} className="rounded-md p-1 text-muted hover:bg-surface">
           <X className="size-5" />
@@ -358,13 +302,8 @@ function ImportDialog({
       </div>
       <div className="max-h-[70vh] space-y-4 overflow-y-auto px-5 py-4">
         <div>
-          {fromPhoto && (
-            <p className="mb-3 rounded-md bg-warning/10 px-3 py-2 text-sm text-warning">
-              AI가 읽은 결과라 틀릴 수 있어요. 아래에서 고친 뒤 가져오세요. 사진에 뜻이 없던 단어는 &lsquo;(AI 추정)&rsquo;으로 표시했어요.
-            </p>
-          )}
           <label htmlFor="import-text" className="mb-1 block text-sm font-semibold">
-            {fromPhoto ? "인식 결과 (단어 [탭] 뜻)" : "엑셀, 구글 시트, 메모장에서 복사한 목록"}
+            엑셀, 구글 시트, 메모장에서 복사한 목록
           </label>
           <textarea
             id="import-text"

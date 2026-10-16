@@ -115,7 +115,7 @@ function Learn({ set, data }: { set: StudySet; data: Snapshot }) {
     return (
       <div>
         {header}
-        <div className="mt-6 rounded-lg bg-surface p-6">
+        <div className="mt-6 rounded-lg bg-bg p-6 shadow-card">
           <p className="text-lg font-semibold">{state.round}라운드 끝!</p>
           <ul className="mt-3 divide-y divide-border">
             {cards.map((c) => (
@@ -139,13 +139,13 @@ function Learn({ set, data }: { set: StudySet; data: Snapshot }) {
   return (
     <div>
       {header}
-      <section aria-label="문제" className="mt-6 rounded-lg border border-border bg-bg p-5 shadow-card sm:p-8">
+      <section aria-label="문제" className="mt-6 rounded-lg bg-bg p-5 shadow-card sm:p-8">
         <p className="text-xs font-semibold text-muted">
           {question.kind === "mc" ? "알맞은 답을 고르세요" : `${promptIsTerm ? "뜻" : "영어 단어"}를 입력하세요`}
         </p>
         <div className="mt-3 flex items-center gap-2">
-          <p lang={promptIsTerm ? "en" : "ko"} className="break-words text-2xl font-bold sm:text-[28px]">
-            {question.prompt}
+          <p lang={promptIsTerm ? "en" : "ko"} className={`break-words font-semibold ${promptIsTerm ? "text-[36px] leading-tight sm:text-[44px]" : "text-[26px] leading-snug"}`}>
+            {promptIsTerm ? <span className="marker">{question.prompt}</span> : question.prompt}
           </p>
           {promptIsTerm && <SpeakButton text={question.prompt} />}
         </div>
@@ -266,7 +266,7 @@ function LearnStart({
     <div>
       <BackLink href={`/set?id=${set.id}`}>{set.title}</BackLink>
       <h1 className="mb-4 text-xl font-bold">학습</h1>
-      <div className="space-y-5 rounded-lg border border-border bg-bg p-5">
+      <div className="space-y-5 rounded-lg bg-bg shadow-card p-5">
         <p className="text-sm text-muted">
           처음에는 보기 중에서 고르고, 맞히면 다음엔 직접 입력해요. 단어마다 두 번 맞히면 끝나요. 한 라운드는 7문제예요.
         </p>

@@ -93,7 +93,7 @@ test.describe("F04 학습", () => {
     await expect(page.getByText("모든 단어를 두 번씩 맞혔어요!")).toBeVisible();
     expect(sawWritten).toBe(true);
     await page.goto("/set/?id=s1");
-    await expect(page.getByText("8 / 8")).toBeVisible();
+    await expect(page.getByText("8단어 중 8개 외움")).toBeVisible();
   });
 
   test("F04-E1 오답은 정답을 보여 주고 라운드 끝에 다시 나옴", async ({ page }) => {
