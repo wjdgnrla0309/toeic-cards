@@ -2,7 +2,7 @@ import type { CardProgress, SetDraft, StudySet } from "../types";
 import type { Repo, Snapshot } from "./repo";
 import { seedSets } from "./seed";
 
-const KEY = "toeic-cards:v1";
+export const LOCAL_KEY = "toeic-cards:v1";
 
 function uid(): string {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -39,7 +39,15 @@ function isSnapshot(v: unknown): v is Snapshot {
   return !!s && Array.isArray(s.sets) && typeof s.progress === "object" && typeof s.learn === "object";
 }
 
-export function createLocalRepo(storage?: Pick<Storage, "getItem" | "setItem">): Repo {
+export interface LocalOptions {
+  key?: string;
+  /** Fill an empty store with the sample sets (off for the cloud cache). */
+  seed?: boolean;
+}
+
+export function createLocalRepo(storage?: Pick<Storage, "getItem" | "setItem">, opts: LocalOptions = {}): Repo {
+  const KEY = opts.key ?? LOCAL_KEY;
+  const withSeed = opts.seed ?? true;
   let snap: Snapshot | null = null;
   const listeners = new Set<() => void>();
   const store = () => storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
@@ -58,7 +66,7 @@ export function createLocalRepo(storage?: Pick<Storage, "getItem" | "setItem">):
       // corrupt data: fall through to a fresh start
     }
     snap = empty();
-    snap.sets = seedSets.map((d) => fromDraft(d));
+    if (withSeed) snap.sets = seedSets.map((d) => fromDraft(d));
     persist();
     return snap;
   }

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Plus, Search } from "lucide-react";
+import { BookOpen, Cloud, CloudAlert, CloudUpload, Plus, Search, UserRound } from "lucide-react";
+import { resync, useAccount } from "@/lib/data";
+import { cloudEnabled } from "@/lib/supabase";
 import { useState, type FormEvent } from "react";
 import { buttonClass } from "./Button";
 
@@ -10,6 +12,7 @@ export function TopNav() {
   const router = useRouter();
   const path = usePathname();
   const [q, setQ] = useState("");
+  const { session, status } = useAccount();
 
   function onSearch(e: FormEvent) {
     e.preventDefault();
@@ -42,6 +45,34 @@ export function TopNav() {
             className="h-9 w-full rounded-md border border-border-input bg-bg pl-9 pr-3 text-sm placeholder:text-muted"
           />
         </form>
+        {cloudEnabled &&
+          (session ? (
+            status.state === "error" ? (
+              <button
+                type="button"
+                onClick={resync}
+                title={status.message}
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-danger hover:bg-danger-soft"
+              >
+                <CloudAlert aria-hidden className="size-5" />
+                <span className="sr-only">서버 저장 실패. 눌러서 다시 저장</span>
+              </button>
+            ) : (
+              <Link
+                href="/account/"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted hover:bg-surface"
+              >
+                {status.state === "synced" ? <Cloud aria-hidden className="size-5" /> : <CloudUpload aria-hidden className="size-5 animate-pulse" />}
+                <span className="sr-only">{status.state === "synced" ? "계정 · 서버에 저장됨" : "계정 · 저장 중"}</span>
+              </Link>
+            )
+          ) : (
+            <Link href="/account/" className={buttonClass("secondary", "sm", "shrink-0")}>
+              <UserRound aria-hidden className="size-4" />
+              <span className="hidden sm:inline">로그인</span>
+              <span className="sr-only sm:hidden">로그인</span>
+            </Link>
+          ))}
         <Link href="/sets/new" className={buttonClass("primary", "sm", "shrink-0")}>
           <Plus aria-hidden className="size-4" />
           <span className="hidden sm:inline">새 세트</span>

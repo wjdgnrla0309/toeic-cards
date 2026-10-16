@@ -1,16 +1,34 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Download, Plus, Upload } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { toast } from "@/components/Toast";
 import { LoadingPage, PageTitle, SetCard } from "@/components/ui";
-import { repo, useData } from "@/lib/data";
+import { addSampleSets, importLocalSets, localSetsForImport, repo, useAccount, useData } from "@/lib/data";
+import { seedSets } from "@/lib/data/seed";
 
 export function HomeClient() {
   const data = useData();
+  const { session } = useAccount();
   const fileRef = useRef<HTMLInputElement>(null);
+  const doneKey = session ? `toeic-cards:moved:${session.user.id}` : "";
+  const [moved, setMoved] = useState(() => {
+    try {
+      return typeof window !== "undefined" && !!doneKey && localStorage.getItem(doneKey) === "1";
+    } catch {
+      return false;
+    }
+  });
   if (!data) return <LoadingPage />;
+
+  const localSets = session && !moved ? localSetsForImport() : [];
+  function markMoved() {
+    try {
+      localStorage.setItem(doneKey, "1");
+    } catch {}
+    setMoved(true);
+  }
 
   const sorted = [...data.sets].sort((a, b) =>
     (b.lastStudiedAt ?? b.updatedAt).localeCompare(a.lastStudiedAt ?? a.updatedAt),
@@ -40,6 +58,46 @@ export function HomeClient() {
     <div>
       <PageTitle sub={`세트 ${data.sets.length}개 · 단어 ${totalWords}개 · 외운 단어 ${mastered}개`}>내 단어장</PageTitle>
 
+      {localSets.length > 0 && (
+        <section aria-labelledby="move" className="mb-6 rounded-lg border border-accent bg-accent-soft p-4">
+          <h2 id="move" className="font-semibold text-accent">
+            이 브라우저에 있던 세트 {localSets.length}개를 계정으로 옮길까요?
+          </h2>
+          <p className="mt-1 text-sm text-text">{localSets.map((s) => s.title).join(", ")}</p>
+          <p className="mt-1 text-xs text-muted">단어만 옮겨지고, 학습 진행 상황은 새로 시작해요.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              onClick={() => {
+                const n = importLocalSets(localSets.map((s) => s.id));
+                markMoved();
+                toast(`${n}개 세트를 계정에 저장했어요.`);
+              }}
+            >
+              모두 옮기기
+            </Button>
+            <Button variant="ghost" size="sm" onClick={markMoved}>
+              옮기지 않기
+            </Button>
+          </div>
+        </section>
+      )}
+
+      {sorted.length === 0 && session && (
+        <div className="mb-4 text-center">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              addSampleSets(seedSets);
+              toast("샘플 세트를 추가했어요.");
+            }}
+          >
+            토익 샘플 세트 3개 추가
+          </Button>
+        </div>
+      )}
+
       {sorted.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border-input bg-surface p-10 text-center">
           <p className="text-lg font-semibold">아직 세트가 없어요.</p>
@@ -68,7 +126,9 @@ export function HomeClient() {
           백업
         </h2>
         <p className="mt-1 text-sm text-muted">
-          지금은 이 브라우저에만 저장돼요. 브라우저 데이터를 지우면 사라지니 가끔 백업 파일로 내려받아 두세요.
+          {session
+            ? "서버에 저장되고 있어요. 필요하면 파일로도 내려받아 둘 수 있어요."
+            : "지금은 이 브라우저에만 저장돼요. 브라우저 데이터를 지우면 사라지니 가끔 백업 파일로 내려받아 두세요."}
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button variant="secondary" size="sm" onClick={exportBackup}>

@@ -200,3 +200,19 @@ describe("local repo", () => {
     expect(r.getSnapshot()!.progress[set.cards[0].id]).toBeUndefined();
   });
 });
+
+describe("photo import text", () => {
+  it("round-trips through the import parser and ignores the AI mark when grading", async () => {
+    const { wordsToImportText } = await import("../../photo");
+    const text = wordsToImportText([
+      { term: "postpone", definition: "연기하다, 미루다", guessed: false },
+      { term: "on behalf of", definition: "~을 대신하여", guessed: true },
+    ]);
+    const { rows } = parseImport(text, { termSep: "tab", rowSep: "newline" });
+    expect(rows).toEqual([
+      { term: "postpone", definition: "연기하다, 미루다" },
+      { term: "on behalf of", definition: "~을 대신하여 (AI 추정)" },
+    ]);
+    expect(gradeWritten("을 대신하여", rows[1].definition)).not.toBe("wrong");
+  });
+});
