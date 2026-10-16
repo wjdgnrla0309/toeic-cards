@@ -201,3 +201,51 @@ describe("local repo", () => {
   });
 });
 
+
+describe("850+ word book", () => {
+  it("is one set without repeated words or identical meanings", async () => {
+    const { libraryCards, librarySet } = await import("../../data/library");
+    expect(librarySet.cards.length).toBe(libraryCards.length);
+    expect(new Set(libraryCards.map((c) => c.term)).size).toBe(libraryCards.length);
+    expect(new Set(libraryCards.map((c) => c.definition)).size).toBe(libraryCards.length);
+    const purchase = libraryCards.find((c) => c.term === "purchase")!;
+    expect(purchase.definition).toBe("구매, 구매하다 (= buy)");
+    expect(gradeWritten("구매하다", purchase.definition)).toBe("correct");
+  });
+
+  it("folds the old topic sets into one and keeps progress", async () => {
+    const { mergeSplitLibrary, LIBRARY_TITLE } = await import("../../data/library");
+    const t = "2026-10-16T00:00:00.000Z";
+    const mk = (id: string, title: string, cards: [string, string, string][]) => ({
+      id, title, description: "", visibility: "private" as const, createdAt: t, updatedAt: t,
+      cards: cards.map(([cid, term, definition]) => ({ id: cid, term, definition })),
+    });
+    const snap = {
+      sets: [
+        mk("mine", "내 세트", [["m1", "a", "1"]]),
+        mk("h", `${LIBRARY_TITLE} | 회의·사무`, [["c1", "postpone", "연기하다, 미루다"], ["c9", "myword", "내가 넣은 단어"]]),
+        mk("p7", `${LIBRARY_TITLE} | Part 7 동의어 바꿔 쓰기`, [["c2", "postpone", "연기하다 (= put off, delay)"]]),
+      ],
+      progress: {
+        c1: { cardId: "c1", correctStreak: 2, timesSeen: 3, starred: true, mastery: "mastered" as const },
+        c2: { cardId: "c2", correctStreak: 1, timesSeen: 1, starred: false, mastery: "learning" as const },
+        m1: { cardId: "m1", correctStreak: 0, timesSeen: 1, starred: false, mastery: "learning" as const },
+      },
+      learn: { h: {} as never, mine: {} as never },
+      matchBest: { p7: 1000 },
+    };
+    let n = 0;
+    const next = mergeSplitLibrary(snap, () => `new${++n}`)!;
+    expect(next.sets.map((s) => s.title)).toEqual(["내 세트", LIBRARY_TITLE]);
+    const book = next.sets[1];
+    const postpone = book.cards.find((c) => c.term === "postpone")!;
+    expect(postpone.id).toBe("c1");
+    expect(next.progress.c1.mastery).toBe("mastered");
+    expect(next.progress.c2).toBeUndefined(); // duplicate card dropped
+    expect(next.progress.m1).toBeDefined(); // other sets untouched
+    expect(book.cards.at(-1)).toMatchObject({ id: "c9", term: "myword" }); // user's own word kept
+    expect(Object.keys(next.learn)).toEqual(["mine"]);
+    expect(next.matchBest).toEqual({});
+    expect(mergeSplitLibrary(next)).toBeNull();
+  });
+});

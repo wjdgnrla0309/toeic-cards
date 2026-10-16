@@ -7,7 +7,7 @@ import { toast } from "@/components/Toast";
 import { LoadingPage, SetCard, Sheet, SpeakButton } from "@/components/ui";
 import { addSampleSets, importLocalSets, localSetsForImport, repo, useAccount, useData } from "@/lib/data";
 import type { Snapshot } from "@/lib/data/repo";
-import { LIBRARY_TITLE, librarySets, libraryWordCount } from "@/lib/data/library";
+import { isLibraryTitle, LIBRARY_TITLE, librarySet, libraryWordCount, mergeSplitLibrary } from "@/lib/data/library";
 import { seedSets } from "@/lib/data/seed";
 
 const dayNumber = () => Math.floor(Date.now() / 86_400_000);
@@ -37,15 +37,22 @@ export function HomeClient() {
   const libraryKey = `toeic-cards:library-added:${session?.user.id ?? "local"}`;
   useEffect(() => {
     if (!data) return;
+    // Older versions added the book as 15 topic sets; fold them into one, keeping progress.
+    const merged = mergeSplitLibrary(data);
+    if (merged) {
+      repo.importAll(JSON.stringify(merged));
+      toast(`${LIBRARY_TITLE}를 한 세트로 합쳤어요.`);
+      return;
+    }
     try {
       if (localStorage.getItem(libraryKey)) return;
       localStorage.setItem(libraryKey, "1");
     } catch {
       return;
     }
-    if (data.sets.some((s) => s.title.startsWith(`${LIBRARY_TITLE} |`))) return;
-    [...librarySets].reverse().forEach((d) => repo.createSet(d));
-    toast(`${LIBRARY_TITLE} ${librarySets.length}개 세트를 추가했어요.`);
+    if (data.sets.some((s) => isLibraryTitle(s.title))) return;
+    repo.createSet(librarySet);
+    toast(`${LIBRARY_TITLE} ${libraryWordCount}단어를 추가했어요.`);
   }, [data, libraryKey]);
 
   if (!data) return <LoadingPage />;
@@ -65,12 +72,11 @@ export function HomeClient() {
   const mastered = Object.values(data.progress).filter((p) => p.mastery === "mastered").length;
   const today = wordOfTheDay(data);
   const recent = sorted[0];
-  const hasLibrary = data.sets.some((s) => s.title.startsWith(`${LIBRARY_TITLE} |`));
+  const hasLibrary = data.sets.some((s) => isLibraryTitle(s.title));
 
   function addLibrary() {
-    // Newest first in the list, so add in reverse to keep the book's order.
-    [...librarySets].reverse().forEach((d) => repo.createSet(d));
-    toast(`${LIBRARY_TITLE} ${librarySets.length}개 세트를 추가했어요.`);
+    repo.createSet(librarySet);
+    toast(`${LIBRARY_TITLE} ${libraryWordCount}단어를 추가했어요.`);
   }
 
   function exportBackup() {
@@ -148,7 +154,7 @@ export function HomeClient() {
           </h2>
           <p className="mt-1 max-w-prose text-[15px] opacity-90">
             채용, 회의, 계약, 재무, 물류, 출장 같은 업무 상황 어휘와 Part 5 형용사·부사·동사, 숙어, 구동사, Part 7 동의어까지{" "}
-            {librarySets.length}개 세트, {libraryWordCount}단어를 한 번에 추가해요.
+            {libraryWordCount}단어를 한 세트로 추가해요.
           </p>
           <button
             type="button"

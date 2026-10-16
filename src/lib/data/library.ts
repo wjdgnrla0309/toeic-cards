@@ -1,4 +1,5 @@
-import type { SetDraft } from "../types";
+import type { SetDraft, StudySet } from "../types";
+import type { Snapshot } from "./repo";
 
 /**
  * "토익 850+ 단어" — a recommended word book shipped with the app.
@@ -49,7 +50,7 @@ const book: { title: string; description: string; words: Entry[] }[] = [
       ["benefits", "복리후생, 혜택"],
       ["incentive", "장려금, 동기"],
       ["performance review", "인사 고과, 업무 평가"],
-      ["evaluate", "평가하다"],
+      ["evaluate", "평가하다, 감정하다"],
       ["dedicated", "헌신적인, 전용의"],
     ],
   },
@@ -571,11 +572,88 @@ const book: { title: string; description: string; words: Entry[] }[] = [
   },
 ];
 
-export const librarySets: SetDraft[] = book.map((s) => ({
-  title: `${LIBRARY_TITLE} | ${s.title}`,
-  description: s.description,
-  visibility: "private",
-  cards: s.words.map(([term, definition]) => ({ term, definition })),
-}));
+/** Split meanings on ", " outside parentheses. */
+function parts(def: string): string[] {
+  return def.split(/,\s*(?![^()]*\))/).map((x) => x.trim()).filter(Boolean);
+}
 
-export const libraryWordCount = librarySets.reduce((n, s) => n + s.cards.length, 0);
+/**
+ * All topics as one set. A word listed under several topics appears once; its
+ * meanings are merged, and a Part 7 paraphrase "(= ...)" is kept at the end.
+ */
+function mergeBook() {
+  const order: string[] = [];
+  const meanings = new Map<string, string[]>();
+  const synonyms = new Map<string, string>();
+  for (const topic of book) {
+    for (const [term, definition] of topic.words) {
+      if (!meanings.has(term)) {
+        order.push(term);
+        meanings.set(term, []);
+      }
+      const list = meanings.get(term)!;
+      const syn = definition.match(/\(=\s*[^)]*\)\s*$/)?.[0];
+      if (syn) synonyms.set(term, syn);
+      for (const m of parts(definition.replace(/\(=\s*[^)]*\)\s*$/, ""))) if (!list.includes(m)) list.push(m);
+    }
+  }
+  return order.map((term) => ({
+    term,
+    definition: [meanings.get(term)!.join(", "), synonyms.get(term)].filter(Boolean).join(" "),
+  }));
+}
+
+export const libraryCards = mergeBook();
+export const libraryWordCount = libraryCards.length;
+
+export const librarySet: SetDraft = {
+  title: LIBRARY_TITLE,
+  description: "업무 상황 어휘, Part 5 형용사·부사·동사, 숙어, 구동사, Part 7 동의어",
+  visibility: "private",
+  cards: libraryCards,
+};
+
+/** Earlier versions added the book as 15 sets titled "토익 850+ 단어 | 주제". */
+export const isSplitLibraryTitle = (title: string) => title.startsWith(`${LIBRARY_TITLE} |`);
+export const isLibraryTitle = (title: string) => title === LIBRARY_TITLE || isSplitLibraryTitle(title);
+
+/**
+ * Turn the old 15 split sets into the single set. Card ids are reused by term,
+ * so memorised/starred progress carries over. Returns null when nothing to do.
+ */
+export function mergeSplitLibrary(snap: Snapshot, newId: () => string = () => crypto.randomUUID()): Snapshot | null {
+  const split = snap.sets.filter((s) => isSplitLibraryTitle(s.title));
+  if (!split.length) return null;
+  const idByTerm = new Map<string, string>();
+  for (const s of split) for (const c of s.cards) if (!idByTerm.has(c.term)) idByTerm.set(c.term, c.id);
+  // Words the user added to those sets themselves are kept at the end.
+  const extra = split.flatMap((s) => s.cards).filter((c) => !libraryCards.some((l) => l.term === c.term));
+  const now = new Date().toISOString();
+  const studied = split.map((s) => s.lastStudiedAt).filter(Boolean).sort().at(-1);
+  const merged: StudySet = {
+    id: split[split.length - 1].id,
+    title: LIBRARY_TITLE,
+    description: librarySet.description,
+    visibility: "private",
+    cards: [
+      ...libraryCards.map((c) => ({ id: idByTerm.get(c.term) ?? newId(), term: c.term, definition: c.definition })),
+      ...extra.filter((c, i, a) => a.findIndex((x) => x.term === c.term) === i),
+    ],
+    createdAt: split[split.length - 1].createdAt,
+    updatedAt: now,
+    lastStudiedAt: studied,
+  };
+  const keep = new Set(merged.cards.map((c) => c.id));
+  const oldIds = new Set(split.map((s) => s.id));
+  const oldCardIds = new Set(split.flatMap((s) => s.cards.map((c) => c.id)));
+  const firstAt = snap.sets.findIndex((s) => oldIds.has(s.id));
+  const sets = snap.sets.filter((s) => !oldIds.has(s.id));
+  sets.splice(firstAt, 0, merged);
+  return {
+    ...snap,
+    sets,
+    progress: Object.fromEntries(Object.entries(snap.progress).filter(([id]) => keep.has(id) || !oldCardIds.has(id))),
+    learn: Object.fromEntries(Object.entries(snap.learn).filter(([id]) => !oldIds.has(id))),
+    matchBest: Object.fromEntries(Object.entries(snap.matchBest).filter(([id]) => !oldIds.has(id))),
+  };
+}
